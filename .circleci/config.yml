@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  run_tests:
+    machine: true
+    steps:
+      - checkout
+      - run: docker build -t ca-mmis/hello-cammis-data .
+      - run: docker run ca-mmis/hello-cammis-data python manage.py test
+
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - run_tests
