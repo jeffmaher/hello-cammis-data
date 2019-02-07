@@ -4,11 +4,45 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: docker build -t ca-mmis/hello-cammis-data .
-      - run: docker run ca-mmis/hello-cammis-data python manage.py test
+      - run: docker build -t hello-cammis-data .
+      - run: docker run hello-cammis-data python manage.py test
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Build and push application Docker image
+          command: |
+            echo "Git SHA1: ${CIRCLE_SHA1}"
+            echo "Git Branch: ${CIRCLE_BRANCH}"
+            echo "Git Tag: ${CIRCLE_TAG}"
+            echo "Review Env: ${REVIEW_ENV_NAME}"
+            if [ "${REVIEW_ENV_NAME}" ]; then
+              IMAGE_TAG="${REVIEW_ENV_NAME}"
+            elif [ "${CIRCLE_TAG}" ]; then
+              IMAGE_TAG="version-${CIRCLE_TAG}"
+            else
+              echo "No Docker image tag!"
+            fi
+            if [ "${IMAGE_TAG}" ]; then
+              docker build -t ${AWS_ECR_REPO_NAME}:${IMAGE_TAG} \
+                -t ${AWS_ECR_REPO_NAME}:commit-${CIRCLE_SHA1} .
+              login="$(aws ecr get-login --region $AWS_DEFAULT_REGION)"
+              ${login}
+              docker push ${AWS_ECR_REPO_NAME}:${IMAGE_TAG}
+              docker push ${AWS_ECR_REPO_NAME}:commit-${CIRCLE_SHA1}
+            fi
 
 workflows:
   version: 2
   build-workflow:
     jobs:
       - run_tests
+      - build:
+        requires:
+          - test
+        filters:
+          branches:
+            ignore: /.*/
+          tags:
+            only: /^\d+\.\d+\.\d+$/
