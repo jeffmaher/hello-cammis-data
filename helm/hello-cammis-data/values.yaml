@@ -1,0 +1,7 @@
+global:
+    helloCammisData:
+        containerPort: 8000
+        servicePort: 8000
+        name: hello-cammis-data
+        imageName: cadhcscammis/hello-cammis-data
+        imageVersion: 1.0.1 # Overwrite this when we script Chart packaging

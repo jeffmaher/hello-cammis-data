@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.helloCammisData.name }}-deploy
+  labels:
+    app: {{ .Values.global.helloCammisData.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.global.helloCammisData.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.helloCammisData.name }}
+    spec:
+      containers:
+        - name: {{ .Values.global.helloCammisData.name }}
+          image: {{ .Values.global.helloCammisData.imageName }}:{{ .Values.global.helloCammisData.imageVersion }}
+          ports:
+            - containerPort: {{ .Values.global.helloCammisData.containerPort }}
+      livenessProbe:
+        initialDelaySeconds: 10
+        periodSeconds: 60
+        timeoutSeconds: 2
+        failureThreshold: 5
+        successThreshold: 1
+        httpGet:
+          path: /alive
+          port: {{ .Values.global.helloCammisData.containerPort }}
+      readinessProbe:
+        initialDelaySeconds: 10
+        periodSeconds: 60
+        timeoutSeconds: 2
+        failureThreshold: 5
+        successThreshold: 1
+        httpGet:
+          path: /ready
+          port: {{ .Values.global.helloCammisData.containerPort }}
+

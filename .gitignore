@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Helm Chart dependency dirs
+charts
+
+# Helm requirement locks (ignore to keep out API keys)
+requirements.lock
