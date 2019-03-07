@@ -1,0 +1,5 @@
+Dockerfile                           @ca-mmis/platform-and-tools-section 
+helm/hello-cammis-data/*             @ca-mmis/platform-and-tools-section 
+helm/hello-cammis-data/templates/*   @ca-mmis/platform-and-tools-section 
+.circleci/*                          @ca-mmis/platform-and-tools-section
+.github/CODEOWNERS                   @ca-mmis/platform-and-tools-section
