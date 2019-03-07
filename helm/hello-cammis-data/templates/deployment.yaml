@@ -37,4 +37,8 @@ spec:
         httpGet:
           path: /ready
           port: {{ .Values.global.helloCammisData.containerPort }}
+      securityContext:
+        runAsUser: 65534 # A value of 65534 maps to user "nobody"
+        allowPrivilegeEscalation: false
+
 
