@@ -1,14 +1,115 @@
+#------------------------
+# --- REUSABLE CHUNKS ---
+# -----------------------
+# (Future CircleCI releases will allow better reuse through Orbs)
+env_vars: &env_vars
+  environment:
+    APP_NAME: hello-cammis-data
+    # To use, $(eval $IMAGE_TAG)
+    IMAGE_TAG: if [ "${CIRCLE_TAG}" ]; then echo "$CIRCLE_TAG"; else echo "$CIRCLE_BRANCH"; fi; 
+    # * Configure these in the CircleCI Job *
+    # AWS_ACCESS_KEY: Access key for an AWS user account that can publish to ECR
+    # AWS_ECR_REPO_NAME: URL or Docker namespace for the Docker image
+    # AWS_DEFAULT_OUTPUT: Set to `table` for human readable display in logs
+    # AWS_DEFAULT_REGION: Region to deploy review environments to
+    # AWS_SECRET_ACCESS_KEY: Secret key for an AWS user account that can publish to ECR
+    # GITHUB_ACCESS_TOKEN: Access token for the user committing the Helm Chart
+    # GIT_COMMITTER_NAME: Plain language name for user committing the Helm Chart
+    # GIT_COMMITTER_EMAIL: Email address for the user committing the Helm Chart
+
+add_helm_repo: &add_helm_repo
+  run:
+    name: Add Helm Repo
+    command: helm repo add cammis https://${GITHUB_ACCESS_TOKEN}@raw.githubusercontent.com/ca-mmis/cammis-helm/master/
+
+branch_commits_only: &branch_commits_only
+  filters:
+    branches:
+      ignore: master
+    tags:
+      ignore: /.*/
+
+build_docker_image: &build_docker_image
+  run:
+    name: Build Docker image
+    command: docker build -t $AWS_ECR_REPO_NAME:version-$(eval $IMAGE_TAG) -t $AWS_ECR_REPO_NAME:commit-${CIRCLE_SHA1} .
+
+infrastructure_runtime: &infrastructure_runtime
+  docker:
+    - image: cadhcscammis/infrastructure-private:5.2.0
+  <<: *env_vars
+
+machine_runtime: &machine_runtime
+  machine: true
+  <<: *env_vars
+
+publish_docker_image: &publish_docker_image
+  run:
+    name: Publish Docker image
+    command: |
+      $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email )
+      docker push $AWS_ECR_REPO_NAME:version-$(eval $IMAGE_TAG)
+      docker push $AWS_ECR_REPO_NAME:commit-${CIRCLE_SHA1}
+
+
+#------------------------
+# --- JOBS ---
+#------------------------
 version: 2
 jobs:
-  run_tests:
-    machine: true
+  tests:
+    <<: *machine_runtime
     steps:
       - checkout
-      - run: docker build -t ca-mmis/hello-cammis-data .
-      - run: docker run ca-mmis/hello-cammis-data python manage.py test
+      - <<: *build_docker_image
+      - run:
+          name: Run tests
+          command: docker run --rm $AWS_ECR_REPO_NAME:commit-${CIRCLE_SHA1} python manage.py test
 
+  publish_version:
+    <<: *infrastructure_runtime
+    steps:  
+      - checkout
+      - setup_remote_docker
+      - <<: *build_docker_image
+      - <<: *publish_docker_image
+      - <<: *add_helm_repo
+      - run:
+          name: Pull down Helm Chart repo
+          command: |
+            git config --global user.name $GIT_COMMITTER_NAME
+            git config --global user.email $GIT_COMMITTER_EMAIL
+            git clone https://${GITHUB_ACCESS_TOKEN}@github.com/ca-mmis/cammis-helm.git
+      - run:
+          name: Package Helm Chart
+          command: helm_pkg.py -c helm/${APP_NAME} -v $(eval $IMAGE_TAG)
+      - run:
+          name: Publish Helm Chart
+          command: | 
+            mv helm/${APP_NAME}/${APP_NAME}-$(eval $IMAGE_TAG).tgz cammis-helm/.
+            helm repo index cammis-helm
+            git -C cammis-helm add .
+            git -C cammis-helm commit -m "Added ${APP_NAME}:$(eval $IMAGE_TAG)"
+            git -C cammis-helm push
+
+#------------------------
+# --- WORKFLOWS ---
+#------------------------
 workflows:
   version: 2
-  build-workflow:
+  
+  # Runs when a commit is pushed to a branch or a tag is created/pushed
+  pushes: 
     jobs:
-      - run_tests
+      # Run tests, code quality, and security for all branch commits
+      - tests:
+          <<: *branch_commits_only
+
+      # Push version labeled images to the image repository for tags with SemVer (major.minor.patch) formatted names
+      - publish_version:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^\d+\.\d+\.\d+(\-.*)?$/
+

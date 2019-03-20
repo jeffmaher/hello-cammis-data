@@ -16,7 +16,11 @@ spec:
     spec:
       containers:
         - name: {{ .Values.global.helloCammisData.name }}
+          {{ if .Values.global.helloCammisData.imageVersion }}
           image: {{ .Values.global.helloCammisData.imageName }}:{{ .Values.global.helloCammisData.imageVersion }}
+          {{ else }}
+          image: {{ .Values.global.helloCammisData.imageName }}:version-{{ .Chart.Version }}
+          {{ end }}
           ports:
             - containerPort: {{ .Values.global.helloCammisData.containerPort }}
       livenessProbe:

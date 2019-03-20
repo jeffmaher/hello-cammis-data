@@ -3,5 +3,5 @@ global:
         containerPort: 8000
         servicePort: 8000
         name: hello-cammis-data
-        imageName: cadhcscammis/hello-cammis-data
-        imageVersion: 1.0.1 # Overwrite this when we script Chart packaging
+        imageName: 166636506311.dkr.ecr.us-west-2.amazonaws.com/hello-cammis-data
+        # imageVersion: 0.0.0 # This can be use via command line `--set global.helloCammisData.imageVersion=0.0.0`, otherwise default is `version-{{ .Chart.Version }}`
