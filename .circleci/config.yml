@@ -8,10 +8,10 @@ env_vars: &env_vars
     # To use, $(eval $IMAGE_TAG)
     IMAGE_TAG: if [ "${CIRCLE_TAG}" ]; then echo "$CIRCLE_TAG"; else echo "$CIRCLE_BRANCH"; fi; 
     # * Configure these in the CircleCI Job *
-    # AWS_ACCESS_KEY: Access key for an AWS user account that can publish to ECR
-    # AWS_ECR_REPO_NAME: URL or Docker namespace for the Docker image
+    # AWS_ACCESS_KEY_ID: Access key for an AWS user account that can publish to ECR
     # AWS_DEFAULT_OUTPUT: Set to `table` for human readable display in logs
     # AWS_DEFAULT_REGION: Region to deploy review environments to
+    # AWS_ECR_REPO_NAME: URL or Docker namespace for the Docker image
     # AWS_SECRET_ACCESS_KEY: Secret key for an AWS user account that can publish to ECR
     # GITHUB_ACCESS_TOKEN: Access token for the user committing the Helm Chart
     # GIT_COMMITTER_NAME: Plain language name for user committing the Helm Chart
