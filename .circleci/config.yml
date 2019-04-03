@@ -64,7 +64,7 @@ jobs:
       - <<: *build_docker_image
       - run:
           name: Run tests
-          command: docker run --rm $AWS_ECR_REPO_NAME:commit-${CIRCLE_SHA1} python manage.py test
+          command: docker run --rm $AWS_ECR_REPO_NAME:commit-${CIRCLE_SHA1} python manage.py test --settings hello_cammis_data.settings_test
 
   publish_version:
     <<: *infrastructure_runtime

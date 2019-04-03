@@ -17,9 +17,6 @@ COPY . ${WORK_DIR}
 # Install required Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# (Remove this later) Migrate the database
-RUN python manage.py migrate
-
 # Expose Port
 EXPOSE ${APP_PORT}
 

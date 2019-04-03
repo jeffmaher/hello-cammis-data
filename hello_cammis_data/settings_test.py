@@ -76,12 +76,8 @@ WSGI_APPLICATION = 'hello_cammis_data.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'hellocammisdata',
-        'USER': 'hellocammisdata',
-        'PASSWORD': 'hellocammisdata',
-        'HOST': 'host.docker.internal',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'testdb.sqlite3'),
     }
 }
 

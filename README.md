@@ -7,6 +7,8 @@ An application used to test data change deployments and connect to an app that c
 ### Dependencies
 
 - Docker CE 18.x ([Mac/Win](https://www.docker.com/products/docker-engine), [Linux](https://hub.docker.com/search/?offering=community&operating_system=linux&platform=server&q=&type=edition))
+- A local Kubernetes cluster (recommendation: use the one built into Docker CE)
+- Helm (configured to connect to the local Kubernetes cluster)
 - Windows only: A Linux-like terminal, such as [Ubuntu for Windows](https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6?activetab=pivot:overviewtab)
 
 ### Instructions
@@ -22,7 +24,13 @@ This launches a Linux terminal for doing development on the app. When the server
 1. (First time only:) Load test data: `python manage.py add_test_data`
 1. Run the server: `python manage.py runserver 0.0.0.0:8000`
 
-## Running w/ Docker
+To exit out:
+
+1. CTRL+C to exit the Python/Django process
+1. Type `exit` to exit the Docker terminal session
+1. Run `sh helm/localdev-db-stop.sh` to stop the database
+
+## Running w/ Docker Locally
 
 This assumes the database has already been setup/migrated.
 
