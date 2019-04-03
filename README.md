@@ -19,6 +19,7 @@ This launches a Linux terminal for doing development on the app. When the server
 1. Build the Docker image: `sh docker/build-local.sh`
 1. Launch a terminal/Docker instance: `sh docker/bash-local.sh`
 1. (First time only:) Create the database file: `python manage.py migrate`
+1. (First time only:) Load test data: `python manage.py add_test_data`
 1. Run the server: `python manage.py runserver 0.0.0.0:8000`
 
 ## Running w/ Docker
