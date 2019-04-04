@@ -74,3 +74,38 @@ Designed to be plugged into a Kubernetes liveliness probe.
 Sends an HTTP code to indicate that the application can safely receive traffic. This is an indication that both the application itself is healthy and that external dependencies, such as the database, are functioning.
 
 Designed to be plugged into a Kubernetes readiness probe.
+
+## Database Migrations
+
+Here's directions to try out a roll forward and a roll back locally.
+
+## Roll Forward
+
+This migration is on the Greeting model, which has the following fields at the start:
+
+- `name`
+- `greeting`
+
+The migration removes the last character from the greeting and places it into a punctuation column, leaving the Greeting model with following fields:
+
+- `name`
+- `greeting`
+- `punctuation`
+
+1. Clone this repo
+1. Switch to tag `2.0.0`
+1. [Do the normal setup steps](#instructions), minus starting the server
+1. Add test data: `python manage.py add_test_data`
+1. Inspect the database at `hellocammisdata.public.data_greeting`
+1. Switch the tag to `2.1.0`
+1. Run the migration: `python manage.py migrate data`
+1. Inspect the database at `hellocammisdata.public.data_greeting`. Note that the last character punctuation has been split into a new column
+
+## Rollback
+
+This reverses the roll forward operation we just did, and should be done immediately after the above steps.
+
+1. Show the migrations for the `data` module: `python manage.py showmigrations data`
+1. Revert the migration to an older state: `python manage.py migrate data 0004`
+1. Inspect the database at `hellocammisdata.public.data_greeting`. Note that the model has been returned to its `2.0.0` state.
+1. (Optional) If you switch the tag back to `2.0.0`, the application will run in its prior state.

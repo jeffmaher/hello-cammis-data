@@ -6,7 +6,7 @@ from data import controller
 
 def hello(request, name):
     greeting = get_object_or_404(Greeting, name=name)
-    return JsonResponse({'hello': greeting.greeting})
+    return JsonResponse({'hello': greeting.greeting + greeting.punctuation})
 
 @csrf_exempt
 def add_greeting(request, name):
@@ -19,7 +19,7 @@ def add_greeting(request, name):
     # Save the Greeting
     greeting = controller.add_greeting(name, greeting_str)
     if greeting:
-        return JsonResponse({'name': greeting.name, 'greeting': greeting.greeting})
+        return JsonResponse({'name': greeting.name, 'greeting': greeting.greeting, 'punctuation': greeting.punctuation})
 
     # If the Greeting couldn't be saved
     return HttpResponseServerError("Trouble saving the Greeting. Sorry!")
@@ -39,7 +39,7 @@ def ready(request):
 def ready_database():
     # Save a record to the database
     unlikely_name = "jkadfsjk3jl2"
-    if controller.add_greeting(unlikely_name, "Ready!") == None:
+    if controller.add_greeting(unlikely_name, "Ready", "!") == None:
         return False
 
     # Retrieve a record from the database

@@ -6,7 +6,11 @@ def add_greeting(name, greeting_str):
     Return None if there is an issue
     '''
     try:
-        greeting = Greeting(name=name, greeting=greeting_str)
+        greeting = Greeting(
+            name=name, 
+            greeting=greeting_str[:-1],
+            punctuation=greeting_str[-1],
+        )
         greeting.save()
     except Exception as e:
         print(e)
