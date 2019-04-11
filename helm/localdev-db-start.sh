@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-helm install stable/postgresql -n hello-cammis-data-postgresql \
+helm install stable/postgresql --version 3.17 -n hello-cammis-data-postgresql \
     --set global.postgresql.postgresqlDatabase=hellocammisdata \
     --set global.postgresql.postgresqlUsername=hellocammisdata \
     --set global.postgresql.postgresqlPassword=hellocammisdata \
