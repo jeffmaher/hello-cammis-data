@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, Http
 from django.views.decorators.csrf import csrf_exempt
 from data.models import Greeting
 from data import controller
+import json
 
 def hello(request, name):
     greeting = get_object_or_404(Greeting, name=name)
@@ -12,12 +13,12 @@ def hello(request, name):
 def add_greeting(request, name):
     # Parse input
     try:
-        greeting_str = request.POST['greeting']
+        post_data = json.loads(request.body.decode("utf-8"))
     except:
         return HttpResponseBadRequest(reason="Missing 'greeting' from form-data")
     
     # Save the Greeting
-    greeting = controller.add_greeting(name, greeting_str)
+    greeting = controller.add_greeting(name, post_data['greeting'])
     if greeting:
         return JsonResponse({'name': greeting.name, 'greeting': greeting.greeting, 'punctuation': greeting.punctuation})
 
